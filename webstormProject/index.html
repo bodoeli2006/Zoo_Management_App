@@ -1,0 +1,1179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verdant Haven Zoo · Management & Visitor Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --g50:#f3f9f5; --g100:#e0f0e6; --g200:#bfe0cc; --g300:#8ec8a5; --g400:#56ab78; --g500:#358d59;
+      --g600:#267045; --g700:#1d5836; --g800:#154229; --g900:#0e2e1c;
+      --amber50:#fef9ec; --amber100:#fdecc8; --amber500:#d97706; --amber700:#92400e;
+      --bg:#f4f7f5; --card:#ffffff; --ink:#13261b; --muted:#566b5e; --line:#dce7e0; --danger:#b93125;
+      --shadow-sm:0 1px 3px rgba(14,46,28,.05), 0 1px 2px rgba(14,46,28,.04);
+      --shadow:0 4px 16px rgba(14,46,28,.06), 0 1px 3px rgba(14,46,28,.04);
+      --shadow-lg:0 18px 40px rgba(14,46,28,.14), 0 4px 12px rgba(14,46,28,.06);
+      --font-display:"Fraunces",Georgia,serif;
+      --font-sans:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body {
+      margin:0;
+      font:15px/1.55 var(--font-sans);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(86,171,120,.08), transparent 36%),
+        radial-gradient(circle at 100% 10%, rgba(217,119,6,.05), transparent 32%),
+        var(--bg);
+      color:var(--ink);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
+    h1,h2,h3 { font-family:var(--font-display); letter-spacing:-.02em; font-weight:700; }
+    h4 { font-family:var(--font-sans); letter-spacing:-.01em; font-weight:700; }
+    #app { flex:1; display:flex; flex-direction:column; }
+    main { flex:1; width:100%; max-width:1240px; margin:0 auto; padding:26px 22px 48px; }
+    footer {
+      text-align:center; color:var(--muted); font-size:13px; padding:22px;
+      border-top:1px solid var(--line); background:rgba(255,255,255,.65);
+    }
+
+    /* ----- Navigation ----- */
+    .nav {
+      position:sticky; top:0; z-index:30;
+      background:linear-gradient(100deg, var(--g900) 0%, var(--g800) 52%, var(--g700) 100%);
+      color:#fff;
+      box-shadow:0 4px 20px rgba(14,46,28,.22);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .nav-in { max-width:1240px; margin:0 auto; padding:12px 22px; display:flex; align-items:center; gap:12px 24px; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:11px; color:#fff; text-decoration:none; font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:-.01em; }
+    .logo {
+      display:grid; place-items:center; width:38px; height:38px; border-radius:12px;
+      background:linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.18);
+      font-size:20px;
+    }
+    #tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    #tabs button {
+      background:transparent; color:#d7ece0; border:0; padding:8px 16px; border-radius:999px;
+      cursor:pointer; font:inherit; font-weight:600; font-size:14px; transition:all .16s ease;
+    }
+    #tabs button:hover { background:rgba(255,255,255,.12); color:#fff; }
+    #tabs button.on { background:#fff; color:var(--g800); font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+    .user { margin-left:auto; display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+    .user > span { display:flex; gap:8px; align-items:center; }
+    .nbtn {
+      border:1px solid rgba(255,255,255,.32); background:rgba(255,255,255,.06); color:#fff;
+      padding:7px 16px; border-radius:999px; cursor:pointer; font:inherit; font-size:13.5px; font-weight:600;
+      transition:all .16s ease;
+    }
+    .nbtn:hover { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.55); }
+    .nbtn.solid { background:#fff; color:var(--g800); border-color:#fff; font-weight:700; }
+    .nbtn.solid:hover { background:var(--g50); }
+    .nbtn.mode-on { background:var(--amber100); color:var(--amber700); border-color:var(--amber100); font-weight:700; }
+    .who {
+      font-size:13.5px; font-weight:600; background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.14);
+      padding:4px 14px 4px 5px; border-radius:999px; display:inline-flex; align-items:center; gap:8px;
+    }
+    .av { display:grid; place-items:center; width:36px; height:36px; border-radius:50%; color:#fff; font-weight:700; flex:none; }
+    .av.sm { width:27px; height:27px; font-size:12.5px; background:var(--g400); color:var(--g900); }
+
+    /* ----- Buttons, forms, dialogs ----- */
+    .btn {
+      background:linear-gradient(180deg, var(--g500), var(--g600)); color:#fff; border:0;
+      padding:10px 20px; border-radius:999px; cursor:pointer; font:inherit; font-weight:700; font-size:14px;
+      box-shadow:0 3px 10px rgba(38,112,69,.28); transition:transform .12s ease, box-shadow .16s ease, filter .16s ease;
+    }
+    .btn:hover { box-shadow:0 6px 16px rgba(38,112,69,.36); filter:brightness(1.03); }
+    .btn:active { transform:translateY(1px); }
+    .btn:disabled { opacity:.55; cursor:not-allowed; box-shadow:none; }
+    .btn.alt { background:var(--g100); color:var(--g800); box-shadow:none; }
+    .btn.alt:hover { background:var(--g200); filter:none; }
+    .btn.hero-btn {
+      background:#fff; color:var(--g800); box-shadow:0 4px 14px rgba(0,0,0,.18);
+      display:inline-flex; align-items:center; gap:7px;
+    }
+    .btn.hero-btn:hover { background:var(--amber50); color:var(--g900); transform:translateY(-1px); }
+    .link { background:none; border:0; color:var(--g600); cursor:pointer; font:inherit; font-weight:600; padding:0; text-decoration:underline; }
+    dialog {
+      border:0; border-radius:22px; padding:26px; width:min(490px,94vw);
+      box-shadow:0 24px 64px rgba(14,46,28,.32); color:var(--ink);
+    }
+    dialog[open] { animation:pop .2s cubic-bezier(.16,1,.3,1); }
+    @keyframes pop { from { opacity:0; transform:translateY(10px) scale(.97); } }
+    dialog::backdrop { background:rgba(14,46,28,.58); backdrop-filter:blur(4px); }
+    .dh { margin:0 0 4px; font-size:24px; color:var(--g800); }
+    .dsub { margin:0 0 16px; color:var(--muted); font-size:14px; }
+    label { display:block; margin-bottom:12px; font-size:13px; color:var(--muted); font-weight:600; }
+    label input, label select, label textarea {
+      display:block; width:100%; margin-top:5px; padding:10px 13px; font:inherit; font-weight:400;
+      color:var(--ink); border:1px solid var(--line); border-radius:12px; background:#fff;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    label input:focus, label select:focus, label textarea:focus, .tools input:focus, .cform textarea:focus {
+      outline:none; border-color:var(--g400); box-shadow:0 0 0 3px rgba(86,171,120,.18);
+    }
+    label.chk { display:flex; gap:9px; align-items:center; color:var(--ink); }
+    label.chk input { width:auto; margin:0; accent-color:var(--g600); }
+    .actions { display:flex; justify-content:flex-end; gap:9px; margin-top:18px; }
+    .switch { display:flex; gap:4px; background:var(--g50); padding:4px; border-radius:999px; margin-bottom:16px; border:1px solid var(--line); }
+    .switch button { flex:1; padding:8px; border:0; background:transparent; border-radius:999px; cursor:pointer; font:inherit; font-weight:600; color:var(--g700); transition:all .15s; }
+    .switch button.on { background:var(--g700); color:#fff; box-shadow:var(--shadow-sm); }
+    #authMsg { color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px; }
+    #msg {
+      position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:200;
+      padding:11px 20px; border-radius:14px; display:none; font-weight:600; font-size:14px;
+      box-shadow:0 10px 28px rgba(0,0,0,.22); max-width:92vw;
+    }
+    #msg.ok { display:block; background:var(--g900); color:#fff; }
+    #msg.err { display:block; background:#fee2e2; color:var(--danger); border:1px solid #fecaca; }
+
+    /* ----- Management table & moderation ----- */
+    .bar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+    .bar h2 { margin:0; font-size:28px; color:var(--g800); }
+    .wrap { background:#fff; border:1px solid var(--line); border-radius:18px; overflow-x:auto; box-shadow:var(--shadow); }
+    table { border-collapse:collapse; width:100%; }
+    th, td { padding:12px 14px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; max-width:260px; overflow:hidden; text-overflow:ellipsis; font-size:14px; }
+    td.wrap-cell { white-space:normal; max-width:340px; }
+    th { background:var(--g50); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--g700); }
+    tr:last-child td { border-bottom:0; }
+    tr:hover td { background:#f8fcf9; }
+    td.act { text-align:right; }
+    td.act button {
+      border:1px solid var(--line); background:#fff; padding:5px 12px; border-radius:999px;
+      cursor:pointer; margin-left:5px; color:var(--g800); font-size:12.5px; font-weight:600; transition:all .14s;
+    }
+    td.act button:hover { background:var(--g100); border-color:var(--g300); }
+    td.act button.del { color:var(--danger); }
+    td.act button.del:hover { background:#fee2e2; border-color:#fecaca; }
+    .empty { padding:32px; text-align:center; color:var(--muted); white-space:normal; font-size:15px; }
+    .ban-pill { display:inline-block; background:#fee2e2; color:var(--danger); border-radius:999px; padding:3px 10px; font-size:11.5px; font-weight:700; }
+    .paid-pill { display:inline-block; background:var(--g100); color:var(--g800); border-radius:999px; padding:3px 11px; font-size:12px; font-weight:700; }
+    .ban-banner { background:#fee2e2; border:1px solid #fecaca; color:var(--danger); border-radius:14px; padding:12px 16px; margin-bottom:14px; font-size:13.5px; font-weight:500; }
+
+    /* ----- Visitor views ----- */
+    .hero {
+      position:relative; overflow:hidden; color:#fff; border-radius:24px; padding:36px 34px 30px; margin-bottom:24px;
+      background:
+        radial-gradient(circle at 90% 12%, rgba(253,236,200,.22) 0, transparent 36%),
+        radial-gradient(circle at 75% 115%, rgba(255,255,255,.14) 0, transparent 44%),
+        linear-gradient(130deg, var(--g900) 0%, var(--g700) 58%, var(--g500) 100%);
+      box-shadow:var(--shadow-lg);
+    }
+    .hero-eyebrow {
+      display:inline-block; text-transform:uppercase; letter-spacing:.1em; font-size:11.5px; font-weight:700;
+      color:var(--amber100); background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+      padding:4px 12px; border-radius:999px; margin-bottom:10px;
+    }
+    .hero h2 { margin:0 0 8px; font-size:36px; line-height:1.15; }
+    .hero p { margin:0; opacity:.92; max-width:600px; font-size:16px; }
+    .stats { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:20px; }
+    .stats span {
+      background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(4px);
+      border-radius:999px; padding:6px 15px; font-size:13.5px; font-weight:600;
+    }
+    .tools { display:flex; gap:12px 16px; flex-wrap:wrap; align-items:center; margin-bottom:22px; }
+    .search-wrap { position:relative; flex:1 1 260px; }
+    .search-wrap::before { content:"🔍"; position:absolute; left:15px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.65; pointer-events:none; }
+    .tools input {
+      width:100%; padding:11px 18px 11px 40px; border:1px solid var(--line); border-radius:999px;
+      font:inherit; background:#fff; box-shadow:var(--shadow-sm);
+    }
+    .chips { display:flex; gap:7px; flex-wrap:wrap; }
+    .chip {
+      border:1px solid var(--line); background:#fff; color:var(--g800); border-radius:999px;
+      padding:7px 15px; cursor:pointer; font-size:13.5px; font-weight:600; font-family:inherit;
+      box-shadow:var(--shadow-sm); transition:all .15s ease;
+    }
+    .chip:hover { background:var(--g50); border-color:var(--g300); }
+    .chip.on { background:var(--g700); color:#fff; border-color:var(--g700); box-shadow:0 3px 10px rgba(29,88,54,.24); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(305px, 1fr)); gap:22px; }
+    .pcard {
+      background:#fff; border:1px solid var(--line); border-radius:20px; overflow:hidden;
+      display:flex; flex-direction:column; box-shadow:var(--shadow);
+      transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s ease, border-color .2s ease;
+    }
+    .pcard.click { cursor:pointer; }
+    .pcard.click:hover, .pcard.click:focus-visible {
+      transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:var(--g300); outline:none;
+    }
+    .media { position:relative; aspect-ratio:16/11; background:var(--g100); overflow:hidden; }
+    .media img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease; }
+    .pcard.click:hover .media img { transform:scale(1.04); }
+    .media::after {
+      content:""; position:absolute; inset:auto 0 0 0; height:42%;
+      background:linear-gradient(to top, rgba(14,46,28,.35), transparent);
+      pointer-events:none;
+    }
+    .ph {
+      width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      color:#fff; font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:.08em;
+    }
+    .badge {
+      position:absolute; top:12px; left:12px; z-index:2; padding:4px 12px; border-radius:999px;
+      font-size:11.5px; font-weight:700; letter-spacing:.02em; color:#fff; background:#526158;
+      box-shadow:0 2px 8px rgba(0,0,0,.28); backdrop-filter:blur(4px);
+    }
+    .badge.lc { background:#236c41; } .badge.nt { background:#688622; } .badge.vu { background:#b97a06; }
+    .badge.en { background:#c84b16; } .badge.cr { background:#a81e24; } .badge.ex { background:#4e3e6b; }
+    .body { padding:18px 20px 18px; display:flex; flex-direction:column; gap:11px; flex:1; }
+    .body h3 { margin:0; font-size:22px; color:var(--g900); line-height:1.2; }
+    .sub { color:var(--muted); font-size:13.5px; font-weight:500; }
+    .tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .tag { background:var(--g50); color:var(--g800); border:1px solid var(--line); border-radius:999px; padding:3px 11px; font-size:12px; font-weight:600; font-family:inherit; }
+    .tag.ok { background:var(--g100); color:var(--g800); border-color:var(--g200); }
+    .tag.warn { background:var(--amber100); color:var(--amber700); border-color:#fcd34d; }
+    .desc { margin:0; color:#2b3f33; font-size:14.5px; }
+    .pcard .desc { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .fact { background:var(--amber50); border-left:3px solid var(--amber500); color:#4a3518; padding:9px 12px; border-radius:10px; font-size:13px; }
+    .feed { border-top:1px dashed var(--line); padding-top:10px; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px; }
+    .cfoot { margin-top:auto; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--muted); padding-top:6px; border-top:1px solid var(--g50); }
+    .cfoot .more { color:var(--g600); font-weight:700; }
+
+    /* ----- Ticket Storefront ----- */
+    .t-layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr); gap:22px; align-items:start; }
+    .t-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(245px,1fr)); gap:16px; }
+    .tcard {
+      background:#fff; border:2px solid var(--line); border-radius:20px; padding:20px; cursor:pointer;
+      box-shadow:var(--shadow); transition:border-color .16s, transform .16s, box-shadow .16s;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .tcard:hover { transform:translateY(-3px); border-color:var(--g300); box-shadow:var(--shadow-lg); }
+    .tcard.sel { border-color:var(--g600); background:linear-gradient(180deg, var(--g50), #fff); box-shadow:0 6px 20px rgba(38,112,69,.14); }
+    .tcard-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .tcard h3 { margin:0; font-size:19px; color:var(--g900); font-family:var(--font-sans); }
+    .tprice { font-size:28px; font-weight:800; color:var(--g700); letter-spacing:-.02em; }
+    .checkout { background:#fff; border:1px solid var(--line); border-radius:22px; padding:24px; box-shadow:var(--shadow); position:sticky; top:82px; }
+    .checkout h3 { margin:0 0 14px; font-size:22px; color:var(--g900); }
+    .qty-row { display:flex; align-items:center; gap:12px; margin:14px 0 16px; }
+    .qty-btn { width:36px; height:36px; border-radius:50%; border:1px solid var(--line); background:var(--g50); color:var(--g800); font-size:18px; font-weight:700; cursor:pointer; transition:background .15s; }
+    .qty-btn:hover { background:var(--g100); }
+    .qty-val { font-size:18px; font-weight:800; min-width:28px; text-align:center; }
+    .sum-line { display:flex; justify-content:space-between; padding:9px 0; border-top:1px dashed var(--line); font-size:14px; }
+    .sum-total { display:flex; justify-content:space-between; padding:14px 0 16px; border-top:2px solid var(--line); font-size:20px; font-weight:800; color:var(--g900); }
+    .receipt { background:var(--g50); border:1px solid var(--g300); border-radius:16px; padding:16px; margin-top:16px; font-size:13.5px; }
+    .receipt h4 { margin:0 0 6px; color:var(--g800); font-size:15px; }
+    .my-tickets { margin-top:30px; }
+    .my-tickets h3 { margin:0 0 14px; font-size:22px; color:var(--g900); }
+
+    /* ----- Animal detail ----- */
+    #animalDlg { width:min(960px,96vw); max-height:92vh; padding:0; overflow:auto; }
+    .loading { padding:64px; text-align:center; color:var(--muted); font-weight:600; }
+    .x {
+      position:sticky; top:12px; display:block; width:38px; height:38px; margin:12px 12px -50px auto; z-index:5;
+      border:0; border-radius:50%; background:rgba(255,255,255,.94); color:var(--g900); font-size:16px; font-weight:700;
+      cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,.25); transition:transform .15s, background .15s;
+    }
+    .x:hover { background:#fff; transform:scale(1.06); }
+    .ad-top { display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,1fr); }
+    .ad-img { position:relative; min-height:350px; background:var(--g100); }
+    .ad-img img, .ad-img .ph { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .ad-info { padding:30px 30px 20px; }
+    .ad-info h2 { margin:0 0 4px; font-size:34px; color:var(--g900); line-height:1.15; }
+    .facts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+    .fcell { background:var(--g50); border:1px solid var(--line); border-radius:14px; padding:10px 13px; font-weight:600; font-size:14px; }
+    .fcell small { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin-bottom:2px; }
+    .ad-sec { padding:0 30px 22px; }
+    .ad-sec h4 { margin:0 0 8px; font-size:16px; color:var(--g800); }
+    .ad-sec p { margin:0; color:#2b3f33; }
+    .ad-top + .ad-body { padding-top:10px; }
+    .ad-cols { display:grid; grid-template-columns:1fr 1fr; }
+    .ad-cols > .ad-sec:only-child { grid-column:1 / -1; }
+    .frow { display:flex; gap:10px; align-items:baseline; padding:7px 0; border-bottom:1px dashed var(--line); font-size:14px; }
+    .frow b { color:var(--g600); width:50px; }
+    .frow em { margin-left:auto; font-style:normal; color:var(--muted); font-weight:600; }
+    #cbox { border-top:1px solid var(--line); padding-top:22px; background:linear-gradient(var(--g50), #fff 140px); }
+    #ccount { color:var(--muted); font-weight:500; }
+    .cform textarea { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:14px; font:inherit; resize:vertical; min-height:88px; }
+    .crow { display:flex; justify-content:space-between; align-items:center; margin:9px 0 16px; }
+    .crow small { color:var(--muted); }
+    .cta {
+      display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+      background:var(--g50); border:1px dashed var(--g300); border-radius:16px; padding:14px 16px; margin-bottom:16px;
+    }
+    .cta span { flex:1 1 220px; font-weight:500; }
+    .cmt { display:flex; gap:12px; padding:14px 0; border-top:1px solid var(--line); }
+    .cb { flex:1; min-width:0; }
+    .cb p { margin:5px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .ch { display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13px; }
+    .ch .when { color:var(--muted); }
+    .ch .c-acts { margin-left:auto; display:flex; gap:10px; align-items:center; }
+    .ch .link { color:var(--danger); font-size:12px; }
+    .ch .link.mod { color:var(--g700); }
+    .rolepill { background:var(--g100); color:var(--g800); border-radius:999px; padding:2px 9px; font-size:11px; font-weight:700; }
+    .cempty { color:var(--muted); text-align:center; padding:18px; }
+    .cerr { color:var(--danger); font-size:13px; font-weight:600; margin-bottom:8px; }
+    @media (max-width:780px) {
+      .t-layout { grid-template-columns:1fr; }
+      .checkout { position:static; }
+    }
+    @media (max-width:720px) {
+      .ad-top, .ad-cols { grid-template-columns:1fr; } .ad-img { min-height:250px; }
+      .hero { padding:26px 22px; } .hero h2 { font-size:28px; } .user { margin-left:0; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <header class="nav"><div class="nav-in">
+    <a class="brand" href="/"><span class="logo">🌿</span><span>Verdant Haven Zoo</span></a>
+    <nav id="tabs"></nav>
+    <div class="user">
+      <button type="button" class="nbtn" id="modeToggle" hidden></button>
+      <span id="guest"><button class="nbtn" data-open="login">Log in</button><button class="nbtn solid" data-open="signup">Sign up</button></span>
+      <span id="member" hidden><span class="who"><span class="av sm" id="avatar"></span> <span id="who"></span></span><button class="nbtn" id="logout">Log out</button></span>
+    </div>
+  </div></header>
+  <main>
+    <div class="bar"><h2 id="title"></h2><button class="btn" id="add">+ Add new</button></div>
+    <div class="wrap"><table id="grid"></table></div>
+    <div id="cards" hidden></div>
+  </main>
+  <footer>🌿 Verdant Haven Zoo · Conservation, Care & Community</footer>
+
+  <dialog id="dlg">
+    <form id="frm"><h3 id="dtitle" class="dh"></h3><div id="fields"></div>
+      <div class="actions"><button type="button" class="btn alt" id="cancel">Cancel</button><button class="btn">Save</button></div>
+    </form>
+  </dialog>
+</div>
+
+<dialog id="timeoutDlg">
+  <form id="timeoutForm">
+    <h3 class="dh">Comment Timeout</h3>
+    <p class="dsub" id="timeoutSub"></p>
+    <label>Timeout preset
+      <select id="timeoutPreset">
+        <option value="15">15 minutes</option>
+        <option value="60" selected>1 hour (60 minutes)</option>
+        <option value="1440">24 hours (1 day)</option>
+        <option value="10080">7 days</option>
+        <option value="custom">Custom minutes…</option>
+        <option value="0">Remove timeout (0 minutes)</option>
+      </select>
+    </label>
+    <label id="customMinsRow" hidden>Duration in minutes
+      <input type="number" id="timeoutMinutes" min="0" max="525600" value="60">
+    </label>
+    <label>Reason (optional)
+      <input type="text" id="timeoutReason" maxlength="250" placeholder="e.g., Spam or disruptive comments">
+    </label>
+    <div id="timeoutErr" class="cerr"></div>
+    <div class="actions">
+      <button type="button" class="btn alt" id="timeoutCancel">Cancel</button>
+      <button class="btn" id="timeoutSave">Apply</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="authDlg">
+  <form id="authForm">
+    <h3 class="dh">🌿 Verdant Haven Zoo</h3>
+    <p class="dsub" id="authSub"></p>
+    <div class="switch">
+      <button type="button" data-mode="login" class="on">Log in</button>
+      <button type="button" data-mode="signup">Sign up</button>
+    </div>
+    <div id="authMsg"></div>
+    <label>Username<input name="username" required autocomplete="username"></label>
+    <label id="emailRow" hidden>Email<input name="email" type="email" autocomplete="email"></label>
+    <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+    <div class="actions"><button type="button" class="btn alt" id="authCancel">Cancel</button><button class="btn" id="authBtn">Log in</button></div>
+  </form>
+</dialog>
+
+<dialog id="animalDlg"><div id="animalBody"></div></dialog>
+<div id="msg"></div>
+
+<script>
+  const T = {
+    animals: { label:'Animals', pk:'animal_id', fields:[
+        {n:'name',l:'Name',req:1},{n:'species',l:'Species',req:1},
+        {n:'gender',l:'Gender',t:'select',opts:['Male','Female','Unknown']},
+        {n:'birth_date',l:'Birth date',t:'date'},{n:'habitat_id',l:'Habitat',t:'fk',fk:'habitats',req:1},
+        {n:'health_status',l:'Health status'},{n:'is_public',l:'Public',t:'bool'},
+        {n:'conservation_status',l:'Conservation status'},
+        {n:'public_description',l:'Public description',t:'textarea'},{n:'fun_fact',l:'Fun fact',t:'textarea'},
+        {n:'image_url',l:'Image URL'}]},
+    habitats: { label:'Habitats', pk:'habitat_id', fields:[
+        {n:'name',l:'Name',req:1},{n:'climate_type',l:'Climate',req:1},
+        {n:'capacity',l:'Capacity',t:'number'},{n:'maintenance_status',l:'Maintenance status'}]},
+    medical_records: { label:'Medical records', pk:'record_id', fields:[
+        {n:'animal_id',l:'Animal',t:'fk',fk:'animals',req:1},{n:'veterinarian_id',l:'Veterinarian',t:'fk',fk:'users',req:1},
+        {n:'diagnosis',l:'Diagnosis',t:'textarea',req:1},{n:'treatment',l:'Treatment',t:'textarea',req:1},
+        {n:'record_date',l:'Record date',t:'date'},{n:'follow_up_date',l:'Follow-up date',t:'date'}]},
+    feeding_schedules: { label:'Feeding', pk:'schedule_id', fields:[
+        {n:'animal_id',l:'Animal',t:'fk',fk:'animals',req:1},{n:'keeper_id',l:'Keeper',t:'fk',fk:'users',req:1},
+        {n:'food_type',l:'Food type',req:1},{n:'quantity_kg',l:'Quantity (kg)',t:'number',step:'0.01'},
+        {n:'feeding_time',l:'Feeding time',t:'time',req:1}]},
+    ticket_sales: { label:'Tickets', pk:'ticket_id', fields:[
+        {n:'user_id',l:'Buyer (optional)',t:'fk',fk:'users'},{n:'ticket_type',l:'Ticket type',req:1},
+        {n:'price',l:'Price',t:'number',step:'0.01'},{n:'status',l:'Status'},
+        {n:'purchase_date',l:'Purchased',t:'datetime',ro:1}]},
+    users: { label:'Users', pk:'user_id', fields:[
+        {n:'username',l:'Username',req:1},{n:'email',l:'Email',req:1},
+        {n:'password',l:'Password',t:'password',req:1,nolist:1},{n:'role_id',l:'Role',t:'fk',fk:'roles',req:1},
+        {n:'comment_banned_until',l:'Timeout until',t:'datetime'},{n:'comment_ban_reason',l:'Timeout reason'},
+        {n:'created_at',l:'Created',t:'datetime',ro:1}]},
+    roles: { label:'Roles', pk:'role_id', fields:[
+        {n:'role_name',l:'Role name',req:1},{n:'description',l:'Description',t:'textarea'}]},
+  };
+
+  const BUY_TAB = { key: 'buy_tickets', label: 'Tickets' };
+  const MOD_TAB = { key: 'moderation', label: 'Moderation' };
+
+  let me = null, cur = null, rows = [], lk = {}, editing = null, mode = 'login';
+  let editMode = false; // false = user/visitor view, true = table editing mode for staff/admin
+  let ex = {}, view = { q: '', hab: '' }, feedBy = {}, openId = null, cDirty = false, timeoutTarget = null;
+  let ticketState = { tierId: 'adult', qty: 1, lastReceipt: null, myTickets: [] };
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money = (n) => '$' + Number(n || 0).toFixed(2);
+  const hasAnyWrite = () => !!me?.user && Object.values(me.tables || {}).some((t) => t.write);
+  const isAdmin = () => !!me?.user?.is_admin;
+  // Logged-in regular visitors ("user" role) can buy tickets; guests can view the ticket page but must log in to buy; staff/admins cannot buy
+  const canBuyTickets = () => !!me?.user && (me.user.can_buy_tickets ?? String(me.user.role || '').toLowerCase() === 'user');
+  const canViewTicketStorefront = () => !me?.user || canBuyTickets();
+  const canEditCur = () => editMode && cur !== MOD_TAB.key && cur !== BUY_TAB.key && !!me?.tables?.[cur]?.write;
+  const tabs = () => {
+    if (!me) return [];
+    if (!editMode) {
+      const list = [];
+      if (me.tables.animals) list.push('animals');
+      if (canViewTicketStorefront()) list.push(BUY_TAB.key);
+      return list;
+    }
+    const list = Object.keys(T).filter((k) => me.tables[k]?.write);
+    if (isAdmin()) list.push(MOD_TAB.key);
+    return list;
+  };
+  const tabLabel = (k) => (k === MOD_TAB.key ? MOD_TAB.label : k === BUY_TAB.key ? BUY_TAB.label : T[k].label);
+  const meta = () => me.tables[cur] || { write: false, hide: [] };
+  const fields = () => T[cur].fields.filter((f) => !meta().hide.includes(f.n));
+
+  async function api(url, opt = {}) {
+    const r = await fetch(url, { headers: {'Content-Type':'application/json'}, ...opt });
+    let d = {}; try { d = await r.json(); } catch {}
+    if (r.status === 401 && me?.user) { await boot(); throw new Error('Your session expired. Please log in again.'); }
+    if (!r.ok) throw new Error(d.error || 'Request failed');
+    return d;
+  }
+  function flash(text, err) {
+    const m = $('#msg'); m.textContent = text; m.className = err ? 'err' : 'ok';
+    if (!err) setTimeout(() => (m.className = ''), 2500);
+  }
+  const fkLabel = (tbl, id) => (lk[tbl] || []).find((x) => x.id == id)?.label ?? id ?? '';
+  function show(f, v) {
+    if (v === null || v === undefined || v === '') return '';
+    if (f.t === 'fk') return fkLabel(f.fk, v);
+    if (f.t === 'bool') return v ? 'Yes' : 'No';
+    if (f.t === 'datetime') return new Date(v).toLocaleString();
+    return v;
+  }
+
+  const authMsg = (t) => ($('#authMsg').textContent = t || '');
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.switch button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+    const f = $('#authForm'), signup = m === 'signup';
+    $('#emailRow').hidden = !signup;
+    f.email.required = signup;
+    f.password.minLength = signup ? 8 : 0;
+    f.password.autocomplete = signup ? 'new-password' : 'current-password';
+    $('#authBtn').textContent = signup ? 'Create account' : 'Log in';
+    $('#authSub').textContent = signup ? 'Create a free visitor account to purchase tickets and join discussions.' : 'Welcome back! Log in to access your account.';
+    authMsg('');
+  }
+  function openAuth(m) { $('#authForm').reset(); setMode(m); $('#authDlg').showModal(); }
+  $('#authForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/api/' + mode, { method: 'POST', body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
+      const id = openId;
+      $('#authDlg').close(); await boot();
+      if (id) openAnimal(id);
+    } catch (err) { authMsg(err.message); }
+  });
+  $('#authCancel').onclick = () => $('#authDlg').close();
+  $('#logout').onclick = async () => {
+    const id = openId;
+    try { await api('/api/logout', { method: 'POST' }); } catch {}
+    ticketState.lastReceipt = null;
+    ticketState.myTickets = [];
+    await boot();
+    if (id) openAnimal(id);
+  };
+
+  function syncModeButton() {
+    const btn = $('#modeToggle');
+    if (!hasAnyWrite()) {
+      editMode = false;
+      btn.hidden = true;
+      return;
+    }
+    btn.hidden = false;
+    btn.classList.toggle('mode-on', editMode);
+    btn.textContent = editMode ? '✎ Edit Mode: ON (Switch to Visitor View)' : '👁 Visitor View (Switch to Edit Mode)';
+  }
+
+  $('#modeToggle').addEventListener('click', () => {
+    editMode = !editMode;
+    view = { q: '', hab: '' };
+    $('#msg').className = '';
+    syncModeButton();
+    const ts = tabs();
+    if (!ts.includes(cur)) cur = ts[0] || null;
+    load();
+  });
+
+  async function boot() {
+    try { me = await api('/api/me'); } catch (e) { flash(e.message, true); return; }
+    showApp();
+  }
+  function showApp() {
+    $('#guest').hidden = !!me.user; $('#member').hidden = !me.user;
+    if (me.user) {
+      const t = me.user.comment_timeout;
+      const suffix = t ? ` · Timed out (${t.remainingText})` : '';
+      $('#who').textContent = `${me.user.username} · ${me.user.role}${suffix}`;
+      $('#avatar').textContent = me.user.username[0].toUpperCase();
+    }
+    syncModeButton();
+    const ts = tabs();
+    if (!ts.length) {
+      cur = null; $('#tabs').innerHTML = ''; $('#title').textContent = 'No access'; $('#add').hidden = true;
+      $('.bar').hidden = false; $('.wrap').hidden = false; $('#cards').hidden = true;
+      $('#grid').innerHTML = '<tr><td class="empty">Nothing to show here.</td></tr>';
+      return;
+    }
+    cur = ts.includes(cur) ? cur : ts[0];
+    load();
+  }
+
+  async function load() {
+    try {
+      if (cur === MOD_TAB.key) {
+        rows = await api('/api/comments');
+        render();
+        return;
+      }
+      if (cur === BUY_TAB.key) {
+        if (!canViewTicketStorefront()) {
+          cur = 'animals';
+          return load();
+        }
+        const [catalog, myTickets] = await Promise.all([
+          me.ticket_catalog ? Promise.resolve(me.ticket_catalog) : api('/api/tickets/catalog'),
+          canBuyTickets() ? api('/api/my-tickets') : Promise.resolve([]),
+        ]);
+        me.ticket_catalog = catalog;
+        ticketState.myTickets = myTickets;
+        if (!catalog.some((t) => t.id === ticketState.tierId) && catalog[0]) {
+          ticketState.tierId = catalog[0].id;
+        }
+        render();
+        return;
+      }
+      const useCard = !editMode && !!CARDS[cur];
+      const need = useCard ? [] : [...new Set(fields().filter((f) => f.fk).map((f) => f.fk))];
+      const more = useCard ? CARDS[cur].need : [];
+      const lookupsToFetch = useCard ? ['habitats'] : need;
+      const [data, lkRes, moreRes] = await Promise.all([
+        api('/api/' + cur),
+        Promise.all(lookupsToFetch.map((n) => api('/api/lookup/' + n))),
+        Promise.all(more.map((n) => api('/api/' + n))),
+      ]);
+      rows = data;
+      lookupsToFetch.forEach((n, i) => (lk[n] = lkRes[i]));
+      more.forEach((n, i) => (ex[n] = moreRes[i]));
+      render();
+    } catch (e) { flash(e.message, true); }
+  }
+
+  function render() {
+    const ts = tabs();
+    $('#tabs').hidden = ts.length <= 1;
+    $('#tabs').innerHTML = ts.map((k) =>
+            `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${tabLabel(k)}</button>`).join('');
+
+    if (cur === BUY_TAB.key) {
+      $('.bar').hidden = true;
+      $('.wrap').hidden = true;
+      $('#cards').hidden = false;
+      drawTicketsStorefront();
+      return;
+    }
+
+    if (cur === MOD_TAB.key) {
+      $('.bar').hidden = false;
+      $('#title').textContent = 'Comment Moderation';
+      $('#add').hidden = true;
+      $('.wrap').hidden = false;
+      $('#cards').hidden = true;
+      $('#grid').innerHTML = rows.length
+              ? `<tr><th>Comment</th><th>Animal</th><th>Author</th><th>Timeout Status</th><th>Posted</th><th style="text-align:right">Actions</th></tr>` +
+              rows.map((c) => {
+                const author = c.username ? `${esc(c.username)}${c.role ? ` (${esc(c.role)})` : ''}` : 'Former user';
+                const statusHtml = c.user_timeout
+                        ? `<span class="ban-pill" title="${esc(c.user_timeout.reason || '')}">Timed out: ${esc(c.user_timeout.remainingText)} left</span>`
+                        : `<span class="sub">Active</span>`;
+                return `<tr>
+            <td class="wrap-cell">${esc(c.body)}</td>
+            <td><button class="link" data-animal="${c.animal_id}">${esc(c.animal_name)}</button></td>
+            <td>${author}</td>
+            <td>${statusHtml}</td>
+            <td title="${esc(new Date(c.created_at).toLocaleString())}">${ago(c.created_at)}</td>
+            <td class="act">
+              ${c.can_timeout ? `<button data-timeout-user="${c.user_id}" data-timeout-name="${esc(c.username || 'User')}" data-timeout-mins="${c.user_timeout ? Math.max(1, Math.ceil(c.user_timeout.remainingMs / 60000)) : 60}" data-timeout-reason="${esc(c.user_timeout?.reason || '')}">${c.user_timeout ? 'Edit Timeout' : 'Timeout'}</button>` : ''}
+              <button class="del" data-mod-del="${c.comment_id}">Delete</button>
+            </td>
+          </tr>`;
+              }).join('')
+              : '<tr><td class="empty">No comments to moderate.</td></tr>';
+      return;
+    }
+
+    const useCard = !editMode && !!CARDS[cur];
+    $('.bar').hidden = useCard;
+    $('.wrap').hidden = useCard;
+    $('#cards').hidden = !useCard;
+    if (useCard) return CARDS[cur].draw();
+
+    const t = T[cur], w = canEditCur(), cols = fields().filter((f) => !f.nolist);
+    $('#title').textContent = t.label + (w ? ' · Edit Mode' : ' (view only)');
+    $('#add').hidden = !w;
+    $('#grid').innerHTML = rows.length
+            ? `<tr><th>ID</th>${cols.map((f) => `<th>${esc(f.l)}</th>`).join('')}${w ? '<th></th>' : ''}</tr>` +
+            rows.map((r) => `<tr><td>${r[t.pk]}</td>${cols.map((f) => {
+                      const v = esc(show(f, r[f.n])); return `<td title="${v}">${v}</td>`; }).join('')}` +
+                    (w ? `<td class="act">${cur === 'animals' ? `<button data-view="${r[t.pk]}">View</button>` : ''}<button data-edit="${r[t.pk]}">Edit</button><button class="del" data-del="${r[t.pk]}">Delete</button></td>` : '') +
+                    '</tr>').join('')
+            : '<tr><td class="empty">No records.</td></tr>';
+  }
+
+  function drawTicketsStorefront() {
+    if (!canViewTicketStorefront()) {
+      cur = 'animals';
+      return render();
+    }
+    const catalog = me.ticket_catalog || [];
+    const selected = catalog.find((t) => t.id === ticketState.tierId) || catalog[0];
+    const subtotal = selected ? selected.price * ticketState.qty : 0;
+    const isGuest = !me.user;
+    const r = ticketState.lastReceipt;
+
+    const receiptHtml = r ? `
+    <div class="receipt">
+      <h4>✅ Order Confirmed!</h4>
+      <div><b>${r.quantity} × ${esc(r.ticket_type)}</b> · Total paid: <b>${money(r.total_price)}</b></div>
+      <div class="sub" style="margin-top:4px">Ticket ID${r.tickets.length > 1 ? 's' : ''}: ${r.tickets.map((t) => `#${t.ticket_id}`).join(', ')}</div>
+    </div>` : '';
+
+    const checkoutActionHtml = isGuest ? `
+      <div class="ban-banner" style="margin-top:12px;margin-bottom:12px">
+        🔒 Log in or sign up with a visitor account to purchase tickets and save them to your profile.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn" data-open="login" style="flex:1">Log in to buy</button>
+        <button type="button" class="btn alt" data-open="signup" style="flex:1">Sign up</button>
+      </div>` : `
+      <button type="button" class="btn" id="buyTicketsBtn" style="width:100%">
+        Purchase ${ticketState.qty} Ticket${ticketState.qty > 1 ? 's' : ''} · ${money(subtotal)}
+      </button>`;
+
+    const myTicketsHtml = me.user ? `
+    <section class="my-tickets">
+      <h3>🎟️ My Purchased Tickets (${ticketState.myTickets.length})</h3>
+      <div class="wrap">
+        <table>
+          ${ticketState.myTickets.length
+            ? `<tr><th>Ticket #</th><th>Type</th><th>Price</th><th>Status</th><th>Purchased</th></tr>` +
+            ticketState.myTickets.map((t) => `
+                <tr>
+                  <td><b>#${t.ticket_id}</b></td>
+                  <td>${esc(t.ticket_type)}</td>
+                  <td>${money(t.price)}</td>
+                  <td><span class="paid-pill">${esc(t.status || 'Paid')}</span></td>
+                  <td>${esc(new Date(t.purchase_date).toLocaleString())}</td>
+                </tr>`).join('')
+            : `<tr><td class="empty">You haven't purchased any tickets yet.</td></tr>`}
+        </table>
+      </div>
+    </section>` : `
+    <div class="cta" style="margin-top:24px">
+      <span>🎟️ Want to buy tickets and view your order history? Log in or create a free visitor account.</span>
+      <button type="button" class="btn" data-open="login">Log in</button>
+      <button type="button" class="btn alt" data-open="signup">Sign up</button>
+    </div>`;
+
+    $('#cards').innerHTML = `
+    <section class="hero">
+      <div class="hero-eyebrow">Visitor Passes</div>
+      <h2>Zoo Tickets & Passes</h2>
+      <p>${isGuest
+        ? 'Browse available admission passes and prices below. Log in to your visitor account when you are ready to purchase.'
+        : 'Choose your admission pass and get instant digital entry tickets saved directly to your visitor account.'}</p>
+      <div class="stats">
+        <span>⚡ Instant confirmation</span>
+        <span>👶 Children under 3 free</span>
+        <span>🌿 Supports wildlife conservation</span>
+      </div>
+    </section>
+    <div class="t-layout">
+      <div class="t-grid">
+        ${catalog.map((t) => `
+          <div class="tcard ${t.id === selected?.id ? 'sel' : ''}" data-tier="${esc(t.id)}" role="button" tabindex="0">
+            <div class="tcard-top">
+              <h3>${esc(t.ticket_type)}</h3>
+              <span class="tag ok">${esc(t.badge)}</span>
+            </div>
+            <div class="tprice">${money(t.price)}</div>
+            <p class="desc sub">${esc(t.desc)}</p>
+          </div>`).join('')}
+      </div>
+      <aside class="checkout">
+        <h3>Order Summary</h3>
+        ${selected ? `
+          <div><b>${esc(selected.ticket_type)}</b></div>
+          <div class="sub">${esc(selected.desc)}</div>
+          <div class="qty-row">
+            <span class="sub">Quantity:</span>
+            <button type="button" class="qty-btn" data-qty="-1" aria-label="Decrease quantity">−</button>
+            <span class="qty-val">${ticketState.qty}</span>
+            <button type="button" class="qty-btn" data-qty="1" aria-label="Increase quantity">+</button>
+          </div>
+          <div class="sum-line"><span>Unit price</span><span>${money(selected.price)}</span></div>
+          <div class="sum-line"><span>Booking fee</span><span>$0.00</span></div>
+          <div class="sum-total"><span>Total</span><span>${money(subtotal)}</span></div>
+          ${checkoutActionHtml}
+        ` : '<div class="sub">No tickets available.</div>'}
+        ${receiptHtml}
+      </aside>
+    </div>
+    ${myTicketsHtml}`;
+  }
+
+  async function buyTickets() {
+    if (!me?.user) {
+      openAuth('login');
+      return;
+    }
+    if (!canBuyTickets()) {
+      flash('Only regular visitor accounts can purchase tickets.', true);
+      return;
+    }
+    const btn = $('#buyTicketsBtn');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+    try {
+      const res = await api('/api/tickets/purchase', {
+        method: 'POST',
+        body: JSON.stringify({ tier_id: ticketState.tierId, quantity: ticketState.qty }),
+      });
+      ticketState.lastReceipt = res;
+      flash(`Purchased ${res.quantity} × ${res.ticket_type}!`);
+      ticketState.myTickets = await api('/api/my-tickets');
+      drawTicketsStorefront();
+    } catch (err) {
+      flash(err.message, true);
+      drawTicketsStorefront();
+    }
+  }
+
+  function openForm(row) {
+    const t = T[cur]; editing = row ? row[t.pk] : null;
+    $('#dtitle').textContent = (row ? 'Edit ' : 'Add ') + t.label.toLowerCase();
+    $('#fields').innerHTML = fields().filter((f) => !f.ro).map((f) => {
+      const v = row ? row[f.n] : null, val = esc(v ?? '');
+      const req = f.req && !(f.t === 'password' && row) ? 'required' : '';
+      if (f.t === 'bool') return `<label class="chk"><input type="checkbox" name="${f.n}" ${row ? (v ? 'checked' : '') : 'checked'}> ${esc(f.l)}</label>`;
+      let input;
+      if (f.t === 'textarea') input = `<textarea name="${f.n}" rows="3" ${req}>${val}</textarea>`;
+      else if (f.t === 'select' || f.t === 'fk') {
+        const opts = f.t === 'select' ? f.opts.map((o) => [o, o]) : (lk[f.fk] || []).map((r) => [r.id, r.label]);
+        input = `<select name="${f.n}" ${req}><option value="">${f.req ? '— choose —' : '— none —'}</option>` +
+                opts.map(([k, l]) => `<option value="${esc(k)}" ${k == v ? 'selected' : ''}>${esc(l)}</option>`).join('') + '</select>';
+      } else if (f.t === 'password') {
+        input = `<input name="${f.n}" type="password" minlength="8" autocomplete="new-password" ${req} ${row ? 'placeholder="Leave blank to keep the current password"' : ''}>`;
+      } else input = `<input name="${f.n}" type="${f.t || 'text'}" ${f.step ? `step="${f.step}"` : f.t === 'number' ? 'step="any"' : ''} value="${val}" ${req}>`;
+      return `<label>${esc(f.l)}${req ? ' *' : ''}${input}</label>`;
+    }).join('');
+    $('#dlg').showModal();
+  }
+
+  $('#frm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {}, fd = new FormData(e.target);
+    for (const f of fields().filter((f) => !f.ro)) {
+      if (f.t === 'bool') { body[f.n] = fd.get(f.n) === 'on'; continue; }
+      const v = fd.get(f.n);
+      if (v !== '') body[f.n] = v;
+      else if (editing && f.t !== 'password') body[f.n] = null;
+    }
+    try {
+      await api('/api/' + cur + (editing ? '/' + editing : ''), { method: editing ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      $('#dlg').close(); flash(editing ? 'Saved' : 'Created'); await load();
+    } catch (err) { flash(err.message, true); $('#dlg').close(); }
+  });
+
+  // ---------- Comment timeout modal (Admin) ----------
+  function openTimeoutModal({ userId, username, minutes = 60, reason = '' }) {
+    timeoutTarget = { userId: Number(userId), username };
+    $('#timeoutSub').textContent = `Set or clear a comment timeout for ${username}.`;
+    $('#timeoutErr').textContent = '';
+    $('#timeoutReason').value = reason;
+    const presets = ['15', '60', '1440', '10080', '0'];
+    const mStr = String(minutes);
+    if (presets.includes(mStr)) {
+      $('#timeoutPreset').value = mStr;
+      $('#customMinsRow').hidden = true;
+      $('#timeoutMinutes').value = mStr;
+    } else {
+      $('#timeoutPreset').value = 'custom';
+      $('#customMinsRow').hidden = false;
+      $('#timeoutMinutes').value = mStr;
+    }
+    $('#timeoutDlg').showModal();
+  }
+
+  $('#timeoutPreset').addEventListener('change', () => {
+    const val = $('#timeoutPreset').value;
+    $('#customMinsRow').hidden = val !== 'custom';
+    if (val !== 'custom') $('#timeoutMinutes').value = val;
+  });
+  $('#timeoutCancel').onclick = () => $('#timeoutDlg').close();
+
+  $('#timeoutForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!timeoutTarget) return;
+    const preset = $('#timeoutPreset').value;
+    const mins = preset === 'custom' ? Number($('#timeoutMinutes').value) : Number(preset);
+    const reason = $('#timeoutReason').value.trim();
+    $('#timeoutErr').textContent = '';
+    try {
+      const res = await api(`/api/users/${timeoutTarget.userId}/comment-timeout`, {
+        method: 'POST',
+        body: JSON.stringify({ duration_minutes: mins, reason }),
+      });
+      $('#timeoutDlg').close();
+      flash(res.comment_timeout
+              ? `Timed out ${res.username} for ${res.comment_timeout.remainingText}`
+              : `Removed comment timeout for ${res.username}`);
+      if (cur === MOD_TAB.key) await load();
+      if (openId) await loadComments();
+    } catch (err) {
+      $('#timeoutErr').textContent = err.message;
+    }
+  });
+
+  const CARDS = {
+    animals: { need: ['feeding_schedules'], draw: drawAnimals },
+  };
+  const hue = (s) => [...String(s ?? '')].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+
+  // Curated high-resolution wildlife photography mapped by species keyword (used whenever image_url is empty or fails to load)
+  const DEFAULT_WILDLIFE_PHOTO = 'https://images.unsplash.com/photo-1534567153574-2b12153a87f0?auto=format&fit=crop&w=900&q=80';
+  const SPECIES_PHOTOS = [
+    [/polar/i,                  'https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=900&q=80'],
+    [/grizzly|brown bear|bear/i,'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=900&q=80'],
+    [/lion/i,                   'https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=900&q=80'],
+    [/tiger/i,                  'https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=900&q=80'],
+    [/leopard|jaguar|panther/i, 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?auto=format&fit=crop&w=900&q=80'],
+    [/cheetah/i,                'https://images.unsplash.com/photo-1551969014-7d2c4cddf0b6?auto=format&fit=crop&w=900&q=80'],
+    [/zebra/i,                  'https://images.unsplash.com/photo-1526319238109-524eecb9b913?auto=format&fit=crop&w=900&q=80'],
+    [/giraffe/i,                'https://images.unsplash.com/photo-1547721064-da6cfb341d50?auto=format&fit=crop&w=900&q=80'],
+    [/elephant/i,               'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=900&q=80'],
+    [/dolphin/i,                'https://images.unsplash.com/photo-1570481662006-a3a1374699e8?auto=format&fit=crop&w=900&q=80'],
+    [/whale/i,                  'https://images.unsplash.com/photo-1568430462989-44163eb1752f?auto=format&fit=crop&w=900&q=80'],
+    [/turtle|tortoise/i,        'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=900&q=80'],
+    [/penguin/i,                'https://images.unsplash.com/photo-1551986782-d0169b3f8fa7?auto=format&fit=crop&w=900&q=80'],
+    [/gorilla/i,                'https://images.unsplash.com/photo-1548550023-2bdb3c5beed3?auto=format&fit=crop&w=900&q=80'],
+    [/chimp|monkey|orangutan|lemur|primate/i, 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=900&q=80'],
+    [/macaw|parrot|toucan/i,    'https://images.unsplash.com/photo-1552728089-57bdde30beb3?auto=format&fit=crop&w=900&q=80'],
+    [/sloth/i,                  'https://images.unsplash.com/photo-1577702312572-5bb9328a9f15?auto=format&fit=crop&w=900&q=80'],
+    [/flamingo/i,               'https://images.unsplash.com/photo-1497206365907-f5e630693df0?auto=format&fit=crop&w=900&q=80'],
+    [/snake|python|cobra|viper/i,'https://images.unsplash.com/photo-1531386151447-fd76ad50012f?auto=format&fit=crop&w=900&q=80'],
+    [/crocodile|alligator/i,    'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?auto=format&fit=crop&w=900&q=80'],
+    [/hippo/i,                  'https://images.unsplash.com/photo-1519066629447-267fffa62d4b?auto=format&fit=crop&w=900&q=80'],
+    [/rhino/i,                  'https://images.unsplash.com/photo-1535338454770-8be927b5a00b?auto=format&fit=crop&w=900&q=80'],
+    [/kangaroo|wallaby/i,       'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80'],
+    [/red panda/i,              'https://images.unsplash.com/photo-1598755257130-c2aaca1f061c?auto=format&fit=crop&w=900&q=80'],
+    [/panda/i,                  'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?auto=format&fit=crop&w=900&q=80'],
+    [/fox/i,                    'https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=900&q=80'],
+    [/wolf/i,                   'https://images.unsplash.com/photo-1564466809058-bf4114d55352?auto=format&fit=crop&w=900&q=80'],
+    [/owl/i,                    'https://images.unsplash.com/photo-1543549790-8b5f4a028cfb?auto=format&fit=crop&w=900&q=80'],
+    [/eagle|hawk|falcon/i,      'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?auto=format&fit=crop&w=900&q=80'],
+    [/shark/i,                  'https://images.unsplash.com/photo-1560275619-4662e36fa65c?auto=format&fit=crop&w=900&q=80'],
+    [/frog|toad|amphibian/i,    'https://images.unsplash.com/photo-1551189013-03cf5bc1c73c?auto=format&fit=crop&w=900&q=80'],
+    [/camel/i,                  'https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=900&q=80'],
+    [/koala/i,                  'https://images.unsplash.com/photo-1579972383667-4894c883d674?auto=format&fit=crop&w=900&q=80'],
+    [/otter/i,                  'https://images.unsplash.com/photo-1591198936750-1db877505f06?auto=format&fit=crop&w=900&q=80'],
+    [/seal|sea lion/i,          'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=900&q=80'],
+    [/peacock/i,                'https://images.unsplash.com/photo-1536514498073-50e69d39c6cf?auto=format&fit=crop&w=900&q=80'],
+    [/swan|duck|heron|crane/i,  'https://images.unsplash.com/photo-1549608276-5786777e6587?auto=format&fit=crop&w=900&q=80'],
+    [/fish|ray|eel|clownfish/i, 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=900&q=80'],
+    [/deer|elk|moose|gazelle|antelope/i, 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=900&q=80'],
+  ];
+
+  const photoFor = (species, name) => {
+    const queryText = `${species || ''} ${name || ''}`;
+    const match = SPECIES_PHOTOS.find(([re]) => re.test(queryText));
+    return match ? match[1] : DEFAULT_WILDLIFE_PHOTO;
+  };
+
+  const climateEmoji = (s) => [[/aqua|marine|ocean|water/i,'🌊'],[/polar|arctic|tundra|ice/i,'❄️'],[/desert|arid/i,'🏜️'],
+    [/savanna|grass/i,'🌾'],[/rain|trop|jungle/i,'🌴'],[/temperate|forest/i,'🌳']].find(([re]) => re.test(s))?.[1] ?? '🏞️';
+  const cons = (s) => { s = (s || '').toLowerCase();
+    return s.includes('critical') ? 'cr' : s.includes('extinct') ? 'ex' : s.includes('endanger') ? 'en'
+            : s.includes('vulnerable') ? 'vu' : s.includes('near') ? 'nt' : s.includes('least') ? 'lc' : ''; };
+  const hhmm = (t) => String(t ?? '').slice(0, 5);
+  const kg = (q) => (q === null || q === undefined ? '' : Number(q) + ' kg');
+  function age(d) {
+    if (!d) return '';
+    const b = new Date(d + 'T00:00:00'), n = new Date();
+    const m = (n.getFullYear() - b.getFullYear()) * 12 + n.getMonth() - b.getMonth() - (n.getDate() < b.getDate() ? 1 : 0);
+    if (m < 0) return '';
+    const y = Math.floor(m / 12);
+    return m < 12 ? `${m} month${m === 1 ? '' : 's'} old` : `${y} year${y === 1 ? '' : 's'} old`;
+  }
+  function ago(iso) {
+    const s = (new Date(iso) - Date.now()) / 1000, rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+    for (const [u, sec] of [['year', 31536000], ['month', 2592000], ['day', 86400], ['hour', 3600], ['minute', 60]]) {
+      if (Math.abs(s) >= sec) return rtf.format(Math.round(s / sec), u);
+    }
+    return 'just now';
+  }
+  const ph = (species, h) => `<div class="ph" style="background:linear-gradient(135deg,hsl(${h} 42% 32%),hsl(${(h + 35) % 360} 48% 22%))"><span>${esc(species || 'Wildlife')}</span></div>`;
+  function media(name, species, url) {
+    const fallbackUrl = photoFor(species, name);
+    const primaryUrl = /^(https?:\/\/|\/)/i.test(url || '') ? url : fallbackUrl;
+    const h = hue(species);
+    return `<img src="${esc(primaryUrl)}" alt="${esc(name)} (${esc(species)})" loading="lazy" data-fallback="${esc(fallbackUrl)}" data-species="${esc(species)}" data-h="${h}">`;
+  }
+  document.addEventListener('error', (e) => {
+    const i = e.target;
+    if (i.tagName !== 'IMG' || !i.dataset.h) return;
+    if (i.dataset.fallback && i.src !== i.dataset.fallback) {
+      i.src = i.dataset.fallback;
+      i.dataset.fallback = '';
+      return;
+    }
+    if (i.src !== DEFAULT_WILDLIFE_PHOTO) {
+      i.src = DEFAULT_WILDLIFE_PHOTO;
+      return;
+    }
+    i.outerHTML = ph(i.dataset.species, i.dataset.h);
+  }, true);
+
+  function drawAnimals() {
+    feedBy = {};
+    (ex.feeding_schedules || []).forEach((f) => (feedBy[f.animal_id] ||= []).push(f));
+    const hc = (lk.habitats || []).length, cc = rows.reduce((n, a) => n + (a.comment_count || 0), 0);
+    $('#cards').innerHTML =
+            `<section class="hero">
+       <div class="hero-eyebrow">Wildlife Sanctuary</div>
+       <h2>Meet our animals</h2>
+       <p>Explore our habitats, learn about endangered species, and join the community conversation.</p>
+       <div class="stats">
+         <span>🐾 ${rows.length} animals</span>
+         <span>🏞️ ${hc} habitats</span>
+         <span>💬 ${cc} comments</span>
+         ${canViewTicketStorefront() ? `<button type="button" class="btn hero-btn" data-tab="${BUY_TAB.key}" style="margin-left:auto">🎟️ ${me.user ? 'Buy Zoo Tickets' : 'View Zoo Tickets'}</button>` : ''}
+       </div></section>
+     <div class="tools"><div class="search-wrap"><input id="q" type="search" placeholder="Search by name or species…" value="${esc(view.q)}"></div><div class="chips" id="chips"></div></div>
+     <div class="grid" id="cg"></div>`;
+    fillAnimals();
+  }
+  function fillAnimals() {
+    const q = view.q.trim().toLowerCase();
+    const list = rows.filter((a) => (!view.hab || a.habitat_id == view.hab) && (!q || `${a.name} ${a.species}`.toLowerCase().includes(q)));
+    $('#chips').innerHTML = [['', 'All'], ...(lk.habitats || []).map((h) => [h.id, h.label])]
+            .map(([id, l]) => `<button class="chip ${view.hab == id ? 'on' : ''}" data-hab="${id}">${esc(l)}</button>`).join('');
+    $('#cg').innerHTML = list.length ? list.map((a) => {
+      const feeds = (feedBy[a.animal_id] || []).slice(0, 2).map((f) => `<div>🍽️ ${esc(f.food_type)} · ${kg(f.quantity_kg)} · ${hhmm(f.feeding_time)}</div>`).join('');
+      const tags = [`🏞️ ${fkLabel('habitats', a.habitat_id)}`, a.gender === 'Male' ? '♂ Male' : a.gender === 'Female' ? '♀ Female' : '', age(a.birth_date) && `🎂 ${age(a.birth_date)}`]
+              .filter(Boolean).map((t) => `<span class="tag">${esc(t)}</span>`).join('');
+      return `<article class="pcard click" data-animal="${a.animal_id}" tabindex="0" role="button" aria-label="View ${esc(a.name)}">
+      <div class="media">${media(a.name, a.species, a.image_url)}${a.conservation_status ? `<span class="badge ${cons(a.conservation_status)}">${esc(a.conservation_status)}</span>` : ''}</div>
+      <div class="body"><div><h3>${esc(a.name)}</h3><div class="sub">${esc(a.species)}</div></div><div class="tags">${tags}</div>
+      ${a.public_description ? `<p class="desc">${esc(a.public_description)}</p>` : ''}
+      ${a.fun_fact ? `<div class="fact">💡 ${esc(a.fun_fact)}</div>` : ''}
+      ${feeds ? `<div class="feed">${feeds}</div>` : ''}
+      <div class="cfoot"><span>💬 ${a.comment_count ? a.comment_count : 'Start the discussion'}</span><span class="more">View details →</span></div></div></article>`;
+    }).join('') : '<p class="empty">No animals match your search.</p>';
+  }
+
+  async function openAnimal(id) {
+    openId = +id;
+    const dlg = $('#animalDlg');
+    $('#animalBody').innerHTML = '<div class="loading">Loading…</div>';
+    if (!dlg.open) dlg.showModal();
+    try {
+      const [animals, feeds, habs, comments] = await Promise.all([
+        api('/api/animals'), api('/api/feeding_schedules').catch(() => []), api('/api/habitats').catch(() => []),
+        api(`/api/animals/${id}/comments`)]);
+      const a = animals.find((x) => x.animal_id == id);
+      if (!a) throw new Error('Animal not found');
+      drawAnimal(a, feeds, habs); drawCommentForm(a); drawComments(comments);
+    } catch (e) { $('#animalBody').innerHTML = `<button class="x" data-close="animalDlg" aria-label="Close">✕</button><div class="loading">${esc(e.message)}</div>`; }
+  }
+
+  function drawAnimal(a, feeds, habs) {
+    const h = habs.find((x) => x.habitat_id == a.habitat_id), staff = !!me.tables.animals?.write;
+    const mine = feeds.filter((f) => f.animal_id == a.animal_id).sort((x, y) => String(x.feeding_time).localeCompare(String(y.feeding_time)));
+    const born = a.birth_date ? `${new Date(a.birth_date + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })} · ${age(a.birth_date)}` : '';
+    const facts = [['Species', a.species], ['Gender', a.gender], ['Born', born], ['Habitat', h?.name], ['Conservation status', a.conservation_status],
+      staff && ['Health', a.health_status], staff && ['Visibility', a.is_public ? 'Public' : 'Hidden from visitors']].filter((x) => x && x[1]);
+    const open = /optimal/i.test(h?.maintenance_status || '');
+    $('#animalBody').innerHTML = `
+    <button class="x" data-close="animalDlg" aria-label="Close">✕</button>
+    <div class="ad-top">
+      <div class="ad-img">${media(a.name, a.species, a.image_url)}${a.conservation_status ? `<span class="badge ${cons(a.conservation_status)}">${esc(a.conservation_status)}</span>` : ''}</div>
+      <div class="ad-info"><h2>${esc(a.name)}</h2><div class="sub">${esc(a.species)}</div>
+        <div class="facts">${facts.map(([k, v]) => `<div class="fcell"><small>${k}</small>${esc(v)}</div>`).join('')}</div></div>
+    </div>
+    <div class="ad-body">
+      ${a.public_description ? `<section class="ad-sec"><h4>About ${esc(a.name)}</h4><p>${esc(a.public_description)}</p></section>` : ''}
+      ${a.fun_fact ? `<section class="ad-sec"><div class="fact">💡 ${esc(a.fun_fact)}</div></section>` : ''}
+      <div class="ad-cols">
+        ${mine.length ? `<section class="ad-sec"><h4>🍽️ Feeding schedule</h4>${mine.map((f) => `<div class="frow"><b>${hhmm(f.feeding_time)}</b><span>${esc(f.food_type)}</span><em>${kg(f.quantity_kg)}</em></div>`).join('')}</section>` : ''}
+        ${h ? `<section class="ad-sec"><h4>${climateEmoji(`${h.name} ${h.climate_type}`)} Habitat: ${esc(h.name)}</h4><div class="tags"><span class="tag">🌡️ ${esc(h.climate_type)}</span>${h.capacity ? `<span class="tag">👥 Up to ${h.capacity} animals</span>` : ''}${h.maintenance_status ? `<span class="tag ${open ? 'ok' : 'warn'}">● ${open ? 'Open' : esc(h.maintenance_status)}</span>` : ''}</div></section>` : ''}
+      </div>
+      <section class="ad-sec" id="cbox"><h4>💬 Discussion <span id="ccount"></span></h4><div id="cform"></div><div id="cerr" class="cerr"></div><div id="cmts"></div></section>
+    </div>`;
+  }
+
+  function drawCommentForm(a) {
+    if (!me.user) {
+      $('#cform').innerHTML = `<div class="cta"><span>💬 Log in or sign up to join the discussion about ${esc(a.name)}.</span>
+      <button class="btn" data-open="login">Log in</button><button class="btn alt" data-open="signup">Sign up</button></div>`;
+      return;
+    }
+    const ban = me.user.comment_timeout;
+    if (ban) {
+      $('#cform').innerHTML = `<div class="ban-banner">⏳ You are currently on a comment timeout for <b>${esc(ban.remainingText)}</b>${ban.reason ? ` — ${esc(ban.reason)}` : ''}.</div>`;
+      return;
+    }
+    $('#cform').innerHTML = `<form id="cf" class="cform"><textarea name="body" maxlength="1000" required placeholder="Share something about ${esc(a.name)}…"></textarea>
+    <div class="crow"><small id="cc">0 / 1000</small><button class="btn">Post comment</button></div></form>`;
+  }
+
+  function drawComments(list) {
+    $('#ccount').textContent = list.length ? `(${list.length})` : '';
+    $('#cmts').innerHTML = list.length ? list.map((c) => {
+      const u = c.username || 'Former user';
+      const tMins = c.user_timeout ? Math.max(1, Math.ceil(c.user_timeout.remainingMs / 60000)) : 60;
+      return `<div class="cmt"><div class="av" style="background:hsl(${110 + hue(u) % 70} 42% 36%)">${esc(u[0].toUpperCase())}</div>
+      <div class="cb"><div class="ch"><b>${esc(u)}</b>${c.role && !/^user$/i.test(c.role) ? `<span class="rolepill">${esc(c.role)}</span>` : ''}
+        ${c.user_timeout ? `<span class="ban-pill" title="${esc(c.user_timeout.reason || '')}">Timed out (${esc(c.user_timeout.remainingText)})</span>` : ''}
+        <span class="when" title="${esc(new Date(c.created_at).toLocaleString())}">${ago(c.created_at)}</span>
+        <span class="c-acts">
+          ${c.can_moderate ? `<button class="link mod" data-timeout-user="${c.user_id}" data-timeout-name="${esc(u)}" data-timeout-mins="${tMins}" data-timeout-reason="${esc(c.user_timeout?.reason || '')}">${c.user_timeout ? 'Edit timeout' : 'Timeout'}</button>` : ''}
+          ${c.can_delete ? `<button class="link" data-cdel="${c.comment_id}">Delete</button>` : ''}
+        </span></div>
+        <p>${esc(c.body)}</p></div></div>`;
+    }).join('') : '<p class="cempty">No comments yet. Be the first to say something!</p>';
+  }
+  const loadComments = async () => drawComments(await api(`/api/animals/${openId}/comments`));
+
+  document.addEventListener('submit', async (e) => {
+    if (e.target.id !== 'cf') return;
+    e.preventDefault();
+    const ta = e.target.elements.body, btn = e.target.querySelector('button');
+    btn.disabled = true; $('#cerr').textContent = '';
+    try {
+      await api(`/api/animals/${openId}/comments`, { method: 'POST', body: JSON.stringify({ body: ta.value }) });
+      ta.value = ''; $('#cc').textContent = '0 / 1000'; cDirty = true; await loadComments();
+    } catch (err) {
+      $('#cerr').textContent = err.message;
+      if (/timeout/i.test(err.message)) { await boot(); }
+    }
+    btn.disabled = false;
+  });
+  async function deleteComment(id) {
+    if (!confirm('Delete this comment?')) return;
+    try {
+      await api('/api/comments/' + id, { method: 'DELETE' });
+      cDirty = true;
+      if (cur === MOD_TAB.key) await load();
+      if (openId) await loadComments();
+    } catch (err) {
+      if ($('#cerr')) $('#cerr').textContent = err.message;
+      else flash(err.message, true);
+    }
+  }
+  $('#animalDlg').addEventListener('close', () => { openId = null; if (cDirty) { cDirty = false; if (cur) load(); } });
+
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'q') { view.q = e.target.value; fillAnimals(); }
+    else if (e.target.name === 'body' && e.target.closest('#cf')) $('#cc').textContent = `${e.target.value.length} / 1000`;
+  });
+  document.addEventListener('keydown', (e) => {
+    const c = e.target.closest?.('[data-animal]');
+    if (c && (e.key === 'Enter' || e.key === ' ') && e.target === c) { e.preventDefault(); openAnimal(c.dataset.animal); }
+    const t = e.target.closest?.('[data-tier]');
+    if (t && (e.key === 'Enter' || e.key === ' ') && e.target === t) {
+      e.preventDefault();
+      ticketState.tierId = t.dataset.tier;
+      drawTicketsStorefront();
+    }
+  });
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('button');
+    if (b?.id === 'buyTicketsBtn') return buyTickets();
+    if (b?.dataset.qty) {
+      ticketState.qty = Math.min(10, Math.max(1, ticketState.qty + Number(b.dataset.qty)));
+      return drawTicketsStorefront();
+    }
+    if (b?.dataset.timeoutUser) {
+      return openTimeoutModal({
+        userId: b.dataset.timeoutUser,
+        username: b.dataset.timeoutName,
+        minutes: b.dataset.timeoutMins,
+        reason: b.dataset.timeoutReason,
+      });
+    }
+    if (b?.dataset.modDel) return deleteComment(b.dataset.modDel);
+    if (b?.dataset.cdel) return deleteComment(b.dataset.cdel);
+
+    const tierCard = e.target.closest('[data-tier]');
+    if (tierCard) {
+      ticketState.tierId = tierCard.dataset.tier;
+      return drawTicketsStorefront();
+    }
+
+    const card = e.target.closest('[data-animal]');
+    if (card) return openAnimal(card.dataset.animal);
+    if (e.target === $('#animalDlg')) return $('#animalDlg').close();
+    if (!b) return;
+    if (b.dataset.open) openAuth(b.dataset.open);
+    else if (b.dataset.mode) setMode(b.dataset.mode);
+    else if (b.dataset.close) $('#' + b.dataset.close).close();
+    else if (b.dataset.tab) { cur = b.dataset.tab; view = { q: '', hab: '' }; $('#msg').className = ''; load(); }
+    else if (b.dataset.hab !== undefined) { view.hab = b.dataset.hab; fillAnimals(); }
+    else if (b.dataset.view) openAnimal(b.dataset.view);
+    else if (b.dataset.edit) openForm(rows.find((r) => r[T[cur].pk] == b.dataset.edit));
+    else if (b.dataset.del) {
+      const warn = (cur === 'animals' || cur === 'habitats') ? '\n\nThis also deletes related animals, medical records, feeding schedules and comments.' : '';
+      if (!confirm('Delete this record?' + warn)) return;
+      try { await api('/api/' + cur + '/' + b.dataset.del, { method: 'DELETE' }); flash('Deleted'); await load(); }
+      catch (err) { flash(err.message, true); }
+    }
+  });
+  $('#add').onclick = () => openForm(null);
+  $('#cancel').onclick = () => $('#dlg').close();
+  boot();
+</script>
+</body>
+</html>
